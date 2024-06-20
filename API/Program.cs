@@ -1,3 +1,6 @@
+using API.Context;
+using Microsoft.EntityFrameworkCore;
+
 namespace API
 {
     public class Program
@@ -5,6 +8,9 @@ namespace API
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            builder.Services.AddDbContext<RandomUserGeneratorContext>(options =>
+                options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSqlConnection")));
 
             // Add services to the container.
 

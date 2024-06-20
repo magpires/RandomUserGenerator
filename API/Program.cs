@@ -1,4 +1,6 @@
 using API.Context;
+using API.Services;
+using API.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace API
@@ -18,6 +20,9 @@ namespace API
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+
+            // Services dependency injections
+            builder.Services.AddScoped<IRandomUserService, RandomUserService>();
 
             var app = builder.Build();
 

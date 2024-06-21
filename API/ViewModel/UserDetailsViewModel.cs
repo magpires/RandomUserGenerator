@@ -6,6 +6,7 @@ namespace API.ViewModel
     {
         public UserDetailsViewModel(User user)
         {
+            Id = user.Id;
             FirstName = user.FirstName;
             LastName = user.LastName;
             Email = user.Email;
@@ -20,6 +21,7 @@ namespace API.ViewModel
             Age = user.Age;
         }
 
+        public int Id { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;

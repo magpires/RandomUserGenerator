@@ -4,6 +4,6 @@ namespace API.Services.Interfaces
 {
     public interface IRandomUserService
     {
-        Task<User> GetRandomUserAsync()
+        Task<User> GetRandomUserAsync();
     }
 }

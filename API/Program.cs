@@ -9,7 +9,7 @@ namespace API
     {
         public static void Main(string[] args)
         {
-            var builder = WebApplication.CreateBuilder(args);
+            WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddDbContext<RandomUserGeneratorContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSqlConnection")));
@@ -23,8 +23,16 @@ namespace API
 
             // Services dependency injections
             builder.Services.AddScoped<IRandomUserService, RandomUserService>();
+            builder.Services.AddScoped<HttpClient>();
 
-            var app = builder.Build();
+            WebApplication app = builder.Build();
+
+            // Ensure database is created
+            using (IServiceScope scope = app.Services.CreateScope())
+            {
+                RandomUserGeneratorContext dbContext = scope.ServiceProvider.GetRequiredService<RandomUserGeneratorContext>();
+                dbContext.Database.Migrate();
+            }
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

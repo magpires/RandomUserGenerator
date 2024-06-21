@@ -1,4 +1,5 @@
-﻿using API.Entities;
+﻿using API.Configurations;
+using API.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Context
@@ -8,5 +9,10 @@ namespace API.Context
         public RandomUserGeneratorContext(DbContextOptions<RandomUserGeneratorContext> options) : base(options) { }
 
         public DbSet<User> Users { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.ApplyConfiguration(new UserConfiguration());
+        }
     }
 }

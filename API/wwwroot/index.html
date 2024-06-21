@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users Report</title>
+    <script>
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/users');
+                const responseData = await response.json();
+
+                const users = responseData.data;
+
+                if (Array.isArray(users)) {
+                    const table = document.getElementById('usersTable');
+
+                    users.forEach(user => {
+                        const row = table.insertRow();
+                        row.insertCell(0).innerText = user.id;
+                        row.insertCell(1).innerHTML = `<input type="text" value="${user.firstName}" />`;
+                        row.insertCell(2).innerHTML = `<input type="text" value="${user.lastName}" />`;
+                        row.insertCell(3).innerHTML = `<input type="text" value="${user.email}" />`;
+                        row.insertCell(4).innerHTML = `<input type="text" value="${user.username}" />`;
+                        const actionsCell = row.insertCell(5);
+                        actionsCell.innerHTML = `<button onclick="editUser(${user.id}, this)">Save</button>`;
+                    });
+                } else {
+                    console.error('The "data" property is not a user array');
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        async function editUser(id, button) {
+            const row = button.closest('tr');
+            const firstName = row.cells[1].querySelector('input').value;
+            const lastName = row.cells[2].querySelector('input').value;
+            const email = row.cells[3].querySelector('input').value;
+            const username = row.cells[4].querySelector('input').value;
+
+            const userData = {
+                firstName,
+                lastName,
+                email,
+                username
+            };
+
+            try {
+                const response = await fetch(`/api/users/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                });
+
+                const responseData = await response.json();
+
+                if (response.ok) {
+                    alert('User updated successfully!');
+                } else {
+                    alert(`Error: ${responseData.errors.join(', ')}`);
+                }
+            } catch (error) {
+                alert('User updated successfully!');
+            }
+        }
+
+        window.onload = loadUsers;
+    </script>
+</head>
+<body>
+    <h1>Users Report</h1>
+    <table id="usersTable" border="1">
+        <tr>
+            <th>Id</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Username</th>
+            <th>Actions</th>
+        </tr>
+    </table>
+</body>
+</html>

@@ -80,18 +80,18 @@ namespace API.Services
                 if (errors.Count > 0)
                     return new ResponseViewModel<UserDetailsViewModel>(400, errors);
 
-                if (await _context.Users.AnyAsync(x => x.Email == userPutDto.Email))
-                {
-                    errors.Add("The email provided is already being used by another user");
-                    return new ResponseViewModel<UserDetailsViewModel>(400, errors);
-                }
-
                 User? user = await _context.Users.FindAsync(id);
 
                 if (user == null)
                 {
                     errors.Add("User not found in database");
                     return new ResponseViewModel<UserDetailsViewModel>(404, errors);
+                }
+
+                if (await _context.Users.AnyAsync(x => x.Email == userPutDto.Email && userPutDto.Email != user.Email))
+                {
+                    errors.Add("The email provided is already being used by another user");
+                    return new ResponseViewModel<UserDetailsViewModel>(400, errors);
                 }
 
                 MergeProperties(userPutDto, user);

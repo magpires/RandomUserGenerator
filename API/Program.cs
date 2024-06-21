@@ -49,6 +49,12 @@ namespace API
 
             app.MapControllers();
 
+            app.UseStaticFiles();
+
+            app.UseRouting();
+
+            app.MapFallbackToFile("index.html");
+
             app.Run();
         }
     }

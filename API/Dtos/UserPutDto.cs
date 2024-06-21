@@ -24,7 +24,7 @@ namespace API.Dtos
                 errors.Add("Email is required");
 
             if (string.IsNullOrEmpty(Username))
-                errors.Add("Username name is required");
+                errors.Add("Username is required");
 
             return errors;
         }

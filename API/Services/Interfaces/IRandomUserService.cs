@@ -5,6 +5,6 @@ namespace API.Services.Interfaces
 {
     public interface IRandomUserService
     {
-        Task<ResponseViewModel<UserDetailsViewModel>> GetRandomUserAsync();
+        Task<ResponseViewModel<UserDetailsViewModel>> AddRandomUserAsync();
     }
 }

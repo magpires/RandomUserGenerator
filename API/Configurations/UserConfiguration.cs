@@ -26,6 +26,9 @@ namespace API.Configurations
             builder.Property(u => u.PictureThumbnail).HasColumnName("picture_thumbnail");
             builder.Property(u => u.DateOfBirth).HasColumnName("date_of_birth");
             builder.Property(u => u.Age).HasColumnName("age");
+
+            builder.HasIndex(u => u.Email)
+                .IsUnique();
         }
     }
 }

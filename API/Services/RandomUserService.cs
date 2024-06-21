@@ -1,4 +1,5 @@
 ﻿using API.Context;
+using API.Dtos;
 using API.Entities;
 using API.Models;
 using API.Services.Interfaces;
@@ -21,7 +22,7 @@ namespace API.Services
             _context = context;
         }
 
-        public async Task<ResponseViewModel<UserDetailsViewModel>> GetRandomUserAsync()
+        public async Task<ResponseViewModel<UserDetailsViewModel>> AddRandomUserAsync()
         {
             try
             {
@@ -44,11 +45,11 @@ namespace API.Services
             catch (Exception e)
             {
                 List<string> errors = new List<string>{ e.Message };
-                return new ResponseViewModel<UserDetailsViewModel>(400, errors);
+                return new ResponseViewModel<UserDetailsViewModel>(500, errors);
             }
         }
 
-        public async Task<ResponseViewModel<IEnumerable<UserViewModel>>> Get()
+        public async Task<ResponseViewModel<IEnumerable<UserViewModel>>> GetAsync()
         {
             try
             {
@@ -58,7 +59,52 @@ namespace API.Services
             catch (Exception e)
             {
                 List<string> errors = new List<string> { e.Message };
-                return new ResponseViewModel<IEnumerable<UserViewModel>>(400, errors);
+                return new ResponseViewModel<IEnumerable<UserViewModel>>(500, errors);
+            }
+        }
+
+        public void MergeProperties(UserPutDto source, User destiny)
+        {
+            destiny.FirstName = string.IsNullOrEmpty(source.FirstName) ? destiny.FirstName : source.FirstName;
+            destiny.LastName = string.IsNullOrEmpty(source.LastName) ? destiny.LastName : source.LastName;
+            destiny.Email = string.IsNullOrEmpty(source.Email) ? destiny.Email : source.Email;
+            destiny.Username = string.IsNullOrEmpty(source.Email) ? destiny.Email : source.Email;
+        }
+
+        public async Task<ResponseViewModel<UserDetailsViewModel>> PutAsync(int id, UserPutDto userPutDto)
+        {
+            try
+            {
+                List<string> errors = userPutDto.Validate();
+
+                if (errors.Count > 0)
+                    return new ResponseViewModel<UserDetailsViewModel>(400, errors);
+
+                if (await _context.Users.AnyAsync(x => x.Email == userPutDto.Email))
+                {
+                    errors.Add("The email provided is already being used by another user");
+                    return new ResponseViewModel<UserDetailsViewModel>(400, errors);
+                }
+
+                User? user = await _context.Users.FindAsync(id);
+
+                if (user == null)
+                {
+                    errors.Add("User not found in database");
+                    return new ResponseViewModel<UserDetailsViewModel>(404, errors);
+                }
+
+                MergeProperties(userPutDto, user);
+
+                _context.Update(user);
+                _context.SaveChanges();
+
+                return new ResponseViewModel<UserDetailsViewModel>(200, user);
+            }
+            catch (Exception e)
+            {
+                List<string> errors = new List<string> { e.Message };
+                return new ResponseViewModel<UserDetailsViewModel>(500, errors);
             }
         }
     }

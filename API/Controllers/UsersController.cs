@@ -1,4 +1,5 @@
 using API.Context;
+using API.Dtos;
 using API.Entities;
 using API.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -17,17 +18,24 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<User>> Get()
+        public async Task<ActionResult<User>> GetAsync()
         {
-            var response = await _randomUserService.Get();
-            return StatusCode(200, response);
+            var response = await _randomUserService.GetAsync();
+            return StatusCode(response.StatusCode, response);
         }
 
         [HttpPost]
-        public async Task<ActionResult<User>> AddRandomUser()
+        public async Task<ActionResult<User>> AddRandomUserAsync()
         {
-            var response = await _randomUserService.GetRandomUserAsync();
-            return StatusCode(200, response);
+            var response = await _randomUserService.AddRandomUserAsync();
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<User>> PutAsync(int id, UserPutDto userPutDto)
+        {
+            var response = await _randomUserService.PutAsync(id, userPutDto);
+            return StatusCode(response.StatusCode, response);
         }
     }
 }

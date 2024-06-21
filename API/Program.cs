@@ -24,6 +24,7 @@ namespace API
             // Services dependency injections
             builder.Services.AddScoped<IRandomUserService, RandomUserService>();
             builder.Services.AddScoped<HttpClient>();
+            builder.Services.AddHttpClient<RandomUserService>();
 
             WebApplication app = builder.Build();
 

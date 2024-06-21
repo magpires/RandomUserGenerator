@@ -1,6 +1,9 @@
-﻿using API.Entities;
+﻿using API.Context;
+using API.Entities;
 using API.Models;
 using API.Services.Interfaces;
+using API.ViewModel;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -9,30 +12,39 @@ namespace API.Services
     public class RandomUserService : IRandomUserService
     {
         private readonly HttpClient _httpClient;
+        private readonly RandomUserGeneratorContext _context;
 
-        public RandomUserService(HttpClient httpClient)
+        public RandomUserService(HttpClient httpClient, RandomUserGeneratorContext context)
         {
             _httpClient = httpClient;
+            _context = context;
         }
 
-        public async Task<User> GetRandomUserAsync()
+        public async Task<ResponseViewModel<UserDetailsViewModel>> GetRandomUserAsync()
         {
-            string response = await _httpClient.GetStringAsync("https://randomuser.me/api/");
-            RandomUserResponseModel? randomUserResponse = JsonConvert.DeserializeObject<RandomUserResponseModel>(response);
-            ResultModel userResult = randomUserResponse.Results.First();
-
-            var user = new User
+            try
             {
-                FirstName = userResult.Name.First,
-                LastName = userResult.Name.Last,
-                Email = userResult.Email,
-                Username = userResult.Login.Username,
-                Password = userResult.Login.Password
-            };
+                string response = await _httpClient.GetStringAsync("https://randomuser.me/api/");
+                RandomUserResponseModel randomUserResponseModel = JsonConvert.DeserializeObject<RandomUserResponseModel>(response) ?? new RandomUserResponseModel();
 
-            // Você pode mapear mais campos se necessário
+                if (string.IsNullOrEmpty(randomUserResponseModel.Error) == false)
+                {
+                    List<string> errors = new List<string> { randomUserResponseModel.Error };
+                    return new ResponseViewModel<UserDetailsViewModel>(400, errors);
+                }
 
-            return user;
+                ResultModel resultModel = randomUserResponseModel.Results.First();
+                User user = resultModel;
+                _context.Users.Add(user);
+                _context.SaveChanges();
+
+                return new ResponseViewModel<UserDetailsViewModel>(200, user);
+            }
+            catch (Exception e)
+            {
+                List<string> errors = new List<string>{ e.Message };
+                return new ResponseViewModel<UserDetailsViewModel>(400, errors);
+            }
         }
     }
 }

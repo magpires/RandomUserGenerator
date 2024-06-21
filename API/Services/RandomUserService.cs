@@ -6,6 +6,7 @@ using API.ViewModel;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Linq;
 
 namespace API.Services
 {
@@ -35,8 +36,8 @@ namespace API.Services
 
                 ResultModel resultModel = randomUserResponseModel.Results.First();
                 User user = resultModel;
-                _context.Users.Add(user);
-                _context.SaveChanges();
+                await _context.Users.AddAsync(user);
+                await _context.SaveChangesAsync();
 
                 return new ResponseViewModel<UserDetailsViewModel>(200, user);
             }
@@ -44,6 +45,20 @@ namespace API.Services
             {
                 List<string> errors = new List<string>{ e.Message };
                 return new ResponseViewModel<UserDetailsViewModel>(400, errors);
+            }
+        }
+
+        public async Task<ResponseViewModel<IEnumerable<UserViewModel>>> Get()
+        {
+            try
+            {
+                var users = await _context.Users.OrderBy(x => x.FirstName).ToListAsync();
+                return new ResponseViewModel<IEnumerable<UserViewModel>>(200, users.Select<User, UserViewModel>(x => x).AsEnumerable());
+            }
+            catch (Exception e)
+            {
+                List<string> errors = new List<string> { e.Message };
+                return new ResponseViewModel<IEnumerable<UserViewModel>>(400, errors);
             }
         }
     }
